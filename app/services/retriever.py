@@ -44,15 +44,14 @@ def retrieve(db: Session, query: str, document_ids: list[int] | None, top_k: int
 
     bm25 = BM25Okapi(corpus)
     tokens = tokenize(query)
-    if not tokens:
-        return []
-
-    scores = bm25.get_scores(tokens)
-    query_set = set(tokens)
+    
+    scores = bm25.get_scores(tokens) if tokens else [0.0] * len(rows)
+    query_set = set(tokens) if tokens else set()
 
     candidates: list[tuple[tuple, float]] = []
     for (chunk, doc), score, chunk_tokens in zip(rows, scores, corpus):
-        if not query_set.intersection(chunk_tokens):
+
+        if query_set and not query_set.intersection(chunk_tokens):
             continue
         candidates.append(((chunk, doc), float(score)))
 

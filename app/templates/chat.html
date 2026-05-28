@@ -63,7 +63,11 @@
       required></textarea>
     <div class="composer-foot">
       <span id="composer-meta" class="composer-meta">
-        using {{ documents | length }} source{{ '' if documents|length == 1 else 's' }} · selectable in the sidebar
+        {% if documents %}
+        using {{ documents | length }} source{{ '' if documents|length == 1 else 's' }} · select in sidebar on the left
+        {% else %}
+        upload files first to enable context
+        {% endif %}
       </span>
       <button type="submit" class="btn btn-primary" id="send-btn">Send</button>
     </div>
