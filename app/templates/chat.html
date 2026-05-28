@@ -108,6 +108,10 @@
     mode: "{{ chat.mode }}",
     options: {{ chat.options | tojson }},
   };
+
+  document.querySelectorAll('.msg-body').forEach(el => {
+    el.innerHTML = marked.parse(el.textContent);
+  });
 </script>
 <script src="/static/js/chat.js"></script>
 {% endblock %}
