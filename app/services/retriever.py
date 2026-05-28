@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models import Chunk, Document
 
 
-_TOKEN = re.compile(r"[A-Za-z0-9_]+", re.UNICODE)
+_TOKEN = re.compile(r"\w+", re.UNICODE)
 _STOP = {
     "the", "a", "an", "and", "or", "but", "if", "then", "else", "of", "to",
     "in", "on", "for", "with", "by", "at", "as", "is", "are", "was", "were",
@@ -46,13 +46,10 @@ def retrieve(db: Session, query: str, document_ids: list[int] | None, top_k: int
     tokens = tokenize(query)
     
     scores = bm25.get_scores(tokens) if tokens else [0.0] * len(rows)
-    query_set = set(tokens) if tokens else set()
 
     candidates: list[tuple[tuple, float]] = []
-    for (chunk, doc), score, chunk_tokens in zip(rows, scores, corpus):
-
-        if query_set and not query_set.intersection(chunk_tokens):
-            continue
+    
+    for (chunk, doc), score in zip(rows, scores):
         candidates.append(((chunk, doc), float(score)))
 
     candidates.sort(key=lambda x: x[1], reverse=True)

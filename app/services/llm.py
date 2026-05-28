@@ -51,7 +51,7 @@ def _parse_responsepayload(payload: dict) -> str:
     return ""
 
 
-def complete(system: str, messages: list[dict], max_tokens: int = 2048) -> str:
+def complete(system: str, messages: list[dict], max_tokens: int = 8192) -> str:
     if not settings.google_api_key:
         raise LLMError("GOOGLE_API_KEY is not set. Add it to .env to enable chat.")
 
@@ -59,7 +59,6 @@ def complete(system: str, messages: list[dict], max_tokens: int = 2048) -> str:
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
     prompt_text = _format_prompt(system, messages)
 
-    # ИСПРАВЛЕНО: завернули токены в generationConfig и поменяли на camelCase
     payload = {
         "contents": [{"parts": [{"text": prompt_text}]}],
         "generationConfig": {
@@ -82,6 +81,11 @@ def complete(system: str, messages: list[dict], max_tokens: int = 2048) -> str:
         with urlopen(request, timeout=60) as response:
             response_text = response.read().decode("utf-8")
             response_json = json.loads(response_text)
+            
+            print("\n" + "="*40 + " GEMINI RAW RESPONSE " + "="*40)
+            print(json.dumps(response_json, indent=2, ensure_ascii=False))
+            print("="*101 + "\n")
+            
     except HTTPError as error:
         body = error.read().decode("utf-8", errors="ignore")
         raise LLMError(f"Gemini API error: {error.code} {error.reason}: {body}") from error
