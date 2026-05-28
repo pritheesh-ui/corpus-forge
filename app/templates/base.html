@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Document Chat{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400;1,9..144,500&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <a class="brand" href="/">
+        <span class="brand-mark">§</span>
+        <span class="brand-name">Marginalia</span>
+      </a>
+
+      <section class="panel">
+        <header class="panel-head">
+          <h2>Sources</h2>
+          <span class="panel-count">{{ documents|length }}</span>
+        </header>
+        <form id="upload-form" class="upload" enctype="multipart/form-data">
+          <label class="upload-drop" for="upload-input">
+            <span class="upload-eyebrow">drop or click</span>
+            <span class="upload-formats">.txt .md .pdf .py .js .ts .json …</span>
+            <input id="upload-input" type="file" name="files" multiple hidden>
+          </label>
+          <button type="submit" class="btn btn-primary upload-submit" disabled>Upload selected</button>
+          <p id="upload-status" class="upload-status"></p>
+        </form>
+
+        <ul class="doc-list">
+          {% for doc in documents %}
+          <li class="doc-row" data-doc-id="{{ doc.id }}">
+            <label class="doc-pick">
+              <input type="checkbox" class="doc-checkbox" value="{{ doc.id }}" checked>
+              <span class="doc-name" title="{{ doc.filename }}">{{ doc.filename }}</span>
+            </label>
+            <span class="doc-meta">{{ doc.extension }} · {{ (doc.size_bytes / 1024) | round(1) }} KB</span>
+            <form method="post" action="/files/{{ doc.id }}/delete" class="doc-del">
+              <button type="submit" title="Delete" aria-label="Delete">×</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="doc-empty">No sources yet — upload one to begin.</li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="panel">
+        <header class="panel-head">
+          <h2>Chats</h2>
+          <button id="new-chat-btn" class="btn btn-ghost" type="button">+ new</button>
+        </header>
+        <ul class="chat-list">
+          {% for c in chats %}
+          <li class="chat-row {% if chat and c.id == chat.id %}is-active{% endif %}">
+            <a href="/chat/{{ c.id }}" class="chat-link">
+              <span class="chat-mode chat-mode-{{ c.mode }}">{{ c.mode | replace('_', ' ') }}</span>
+              <span class="chat-title">{{ c.title }}</span>
+            </a>
+            <form method="post" action="/chats/{{ c.id }}/delete" class="chat-del">
+              <button type="submit" title="Delete chat" aria-label="Delete chat">×</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="chat-empty">No chats yet.</li>
+          {% endfor %}
+        </ul>
+      </section>
+    </aside>
+
+    <main class="main">
+      {% block main %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    window.__MODES__ = {{ modes_json | safe }};
+  </script>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Marginalia — start{% endblock %}
+
+{% block main %}
+<section class="empty-state">
+  <div class="empty-eyebrow">a small reading room for your files</div>
+  <h1 class="empty-title">
+    Upload your <em>sources</em>,<br>
+    then start a conversation<br>
+    that <em>cites</em> them.
+  </h1>
+
+  <div class="mode-grid">
+    {% for key, spec in modes.items() %}
+    <button class="mode-card" data-mode="{{ key }}" type="button">
+      <span class="mode-card-key">{{ key | replace('_', ' ') }}</span>
+      <span class="mode-card-label">{{ spec.label }}</span>
+      <span class="mode-card-desc">{{ spec.description }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  <p class="empty-footnote">
+    Retrieval runs locally with BM25 — only the relevant passages plus your prompt
+    travel to the model.
+  </p>
+</section>
+
+<dialog id="new-chat-dialog" class="dialog">
+  <form id="new-chat-form" class="dialog-form" method="dialog">
+    <header>
+      <h3 id="new-chat-title">Start a new chat</h3>
+      <button type="button" class="dialog-close" data-close>×</button>
+    </header>
+    <label class="field">
+      <span class="field-label">Mode</span>
+      <select name="mode" id="new-chat-mode">
+        {% for key, spec in modes.items() %}
+        <option value="{{ key }}">{{ spec.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="field">
+      <span class="field-label">Title (optional)</span>
+      <input name="title" type="text" placeholder="leave blank to auto-generate">
+    </label>
+    <div id="new-chat-options" class="dialog-options"></div>
+    <footer>
+      <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+      <button type="submit" class="btn btn-primary">Create chat</button>
+    </footer>
+  </form>
+</dialog>
+{% endblock %}
